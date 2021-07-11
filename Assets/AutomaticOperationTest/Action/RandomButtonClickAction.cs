@@ -26,7 +26,7 @@ namespace AutomaticOperationTest.Action
         public void Execute(IActionLogger logger)
         {
             var targetButton = _targetButtons[Random.Range(0, _targetButtons.Length)].gameObject;
-            using var _ = logger.LogStart("Click", ("Target", targetButton.GetFullName()));
+            logger.Log("Click", ("Target", targetButton.GetFullName()));
             ExecuteEvents.Execute
             (
                 targetButton,

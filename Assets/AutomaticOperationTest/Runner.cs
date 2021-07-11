@@ -16,7 +16,7 @@ namespace AutomaticOperationTest
         }
 
         public IReadOnlyLogger Logger { get; }
-        public Action<(string condition, string stackTrace, LogType type)> ErrorDetected { get; set; }
+        public Action<(IReadOnlyLogger Logger, (string Condition, string StackTrace, LogType Type))> ErrorDetected { get; set; }
 
         private readonly RunnerOptions _options;
         private readonly GameObject _gameObject;
@@ -27,7 +27,7 @@ namespace AutomaticOperationTest
             _options = options;
             _gameObject = new GameObject("AutomaticOperationTestRunner");
 
-            var logger = new Logger();
+            var logger = new Logger(_options.LogToConsole);
             Logger = logger;
 
             var unityRunner = _gameObject.AddComponent<UnityRunner>();
@@ -49,7 +49,7 @@ namespace AutomaticOperationTest
         private void HandleLog(string condition, string stacktrace, LogType type)
         {
             if (type == LogType.Log || type == LogType.Warning) return;
-            ErrorDetected?.Invoke((condition, stacktrace, type));
+            ErrorDetected?.Invoke((Logger, (condition, stacktrace, type)));
             if (_options.StopOnError) Dispose();
         }
     }
@@ -75,13 +75,15 @@ namespace AutomaticOperationTest
             {
                 foreach (var m in must)
                 {
-                    m.Execute(Logger.CreateActionLogger(m));
+                    using var actionLogger = Logger.CreateActionLogger(m);
+                    m.Execute(actionLogger);
                 }
             }
             else if (random.Count > 0)
             {
                 var randomPick = random[UnityEngine.Random.Range(0, random.Count)];
-                randomPick.Execute(Logger.CreateActionLogger(randomPick));
+                using var actionLogger = Logger.CreateActionLogger(randomPick);
+                randomPick.Execute(actionLogger);
             }
         }
 
@@ -104,5 +106,6 @@ namespace AutomaticOperationTest
     public class RunnerOptions
     {
         public bool StopOnError { get; set; } = true;
+        public bool LogToConsole { get; set; } = true;
     }
 }
