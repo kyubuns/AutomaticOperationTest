@@ -8,20 +8,23 @@ namespace AutomaticOperationTest
 {
     public class Runner : IDisposable
     {
-        public static Runner Run(IAction[] actions)
+        public static Runner Run(IAction[] actions, RunnerOptions options = null)
         {
-            var runner = new Runner(actions);
+            if (options == null) options = new RunnerOptions();
+            var runner = new Runner(actions, options);
             return runner;
         }
 
         public IReadOnlyLogger Logger { get; }
         public Action<(string condition, string stackTrace, LogType type)> ErrorDetected { get; set; }
 
-        private bool _disposed;
+        private readonly RunnerOptions _options;
         private readonly GameObject _gameObject;
+        private bool _disposed;
 
-        private Runner(IAction[] actions)
+        private Runner(IAction[] actions, RunnerOptions options)
         {
+            _options = options;
             _gameObject = new GameObject("AutomaticOperationTestRunner");
 
             var logger = new Logger();
@@ -47,6 +50,7 @@ namespace AutomaticOperationTest
         {
             if (type == LogType.Log || type == LogType.Warning) return;
             ErrorDetected?.Invoke((condition, stacktrace, type));
+            if (_options.StopOnError) Dispose();
         }
     }
 
@@ -95,5 +99,10 @@ namespace AutomaticOperationTest
         Must,
         Random,
         None,
+    }
+
+    public class RunnerOptions
+    {
+        public bool StopOnError { get; set; } = true;
     }
 }
