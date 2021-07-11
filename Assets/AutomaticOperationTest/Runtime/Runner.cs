@@ -67,7 +67,7 @@ namespace AutomaticOperationTest
         private IAction _runningAction;
         private IActionLogger _runningActionLogger;
 
-        public void Update()
+        public void LateUpdate()
         {
             if (_runningAction == null)
             {
