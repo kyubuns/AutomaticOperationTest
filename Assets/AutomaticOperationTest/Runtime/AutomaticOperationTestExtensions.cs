@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,17 +16,22 @@ namespace AutomaticOperationTest
             if (EventSystem.current.enabled == false) return false;
 
             var rect = button.GetComponent<RectTransform>();
-            var center = rect.position;
             var canvas = button.GetComponentInParent<Canvas>();
-            var pos = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, center);
-
-            var eventDataCurrentPosition = new PointerEventData(EventSystem.current)
-            {
-                position = pos
-            };
             var results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
-            return results.Any() && results[0].gameObject.GetComponentInParent<Button>() == button;
+            var eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+
+            var center = rect.position;
+            var corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+
+            foreach (var p in new[]{center}.Concat(corners))
+            {
+                eventDataCurrentPosition.position = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, p);
+                EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+                if (results.Any() && results[0].gameObject.GetComponentInParent<Button>() == button) return true;
+            }
+
+            return false;
         }
 
         public static string GetFullName(this GameObject target)
