@@ -6,13 +6,46 @@ Automatic Operation Test
 
 <a href="https://www.buymeacoffee.com/kyubuns" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
+## How to use
+
+```csharp
+[MenuItem("Test/AutomaticOperationTest/Run1")]
+public static void Run1()
+{
+    Core.TimeScale = 10.0f;
+    var runner = Runner.Run(new IAction[]
+    {
+        new RandomButtonClickAction(new RandomButtonClickActionOptions
+        {
+            Condition = Condition.Is<Button>(x =>
+                !x.gameObject.GetFullName().StartsWith("AbcConsole(Clone)/") // AbcConsoleのボタンは除外
+            )
+        })
+    }, new RunnerOptions
+    {
+        LogToConsole = false,
+    });
+
+    runner.ErrorDetected += x =>
+    {
+        var (logger, error) = x;
+        Debug.Log($"Error Detected", ("Action", logger.CurrentAction));
+        Debug.Log($"{error.Condition}");
+        Debug.Log($"{error.StackTrace}");
+        foreach (var log in logger.CurrentActionLogs)
+        {
+            Core.Log($"{log}");
+        }
+        // スクリーンショットを撮ってSlackに送るとか
+    };
+}
+```
+
 ## Installation
 
 ### UnityPackageManager
 
-
 - `https://github.com/kyubuns/AutomaticOperationTest.git?path=Assets/AutomaticOperationTest`
-
 
 ## Target Environment
 
