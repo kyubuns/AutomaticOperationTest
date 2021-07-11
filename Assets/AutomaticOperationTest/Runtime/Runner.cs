@@ -20,19 +20,21 @@ namespace AutomaticOperationTest
 
         private readonly RunnerOptions _options;
         private readonly GameObject _gameObject;
+        private readonly UnityRunner _unityRunner;
         private bool _disposed;
 
         private Runner(IAction[] actions, RunnerOptions options)
         {
             _options = options;
             _gameObject = new GameObject("AutomaticOperationTestRunner");
+            Object.DontDestroyOnLoad(_gameObject);
 
             var logger = new Logger(_options.LogToConsole);
             Logger = logger;
 
-            var unityRunner = _gameObject.AddComponent<UnityRunner>();
-            unityRunner.Actions = actions;
-            unityRunner.Logger = logger;
+            _unityRunner = _gameObject.AddComponent<UnityRunner>();
+            _unityRunner.Actions = actions;
+            _unityRunner.Logger = logger;
 
             Application.logMessageReceived += HandleLog;
         }
@@ -43,6 +45,10 @@ namespace AutomaticOperationTest
 
             _disposed = true;
             Application.logMessageReceived -= HandleLog;
+            foreach (var action in _unityRunner.Actions)
+            {
+                action.Dispose();
+            }
             Object.Destroy(_gameObject);
         }
 
@@ -91,14 +97,6 @@ namespace AutomaticOperationTest
                     _runningAction = null;
                     _runningActionLogger = null;
                 }
-            }
-        }
-
-        public void OnDestroy()
-        {
-            foreach (var action in Actions)
-            {
-                action.Dispose();
             }
         }
     }
