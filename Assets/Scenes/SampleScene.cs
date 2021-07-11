@@ -37,7 +37,10 @@ public class SampleScene : MonoBehaviour
 
             var runner = Runner.Run(new IAction[]
             {
-                new RandomButtonClickAction()
+                new RandomButtonClickAction(new RandomButtonClickActionOptions
+                {
+                    Condition = Condition.Is<Button>(go => go.name != "Debug")
+                })
             });
 
             runner.ErrorDetected += (x) =>

@@ -9,7 +9,13 @@ namespace AutomaticOperationTest.Action
     {
         public string Name => nameof(RandomButtonClickAction);
 
+        private readonly RandomButtonClickActionOptions _options;
         private Button[] _targetButtons;
+
+        public RandomButtonClickAction(RandomButtonClickActionOptions options = null)
+        {
+            _options = options ?? new RandomButtonClickActionOptions();
+        }
 
         public void Dispose()
         {
@@ -18,7 +24,10 @@ namespace AutomaticOperationTest.Action
         public Priority GetPriority()
         {
             var buttons = Object.FindObjectsOfType<Button>();
-            _targetButtons = buttons.Where(x => x.CheckClickable()).ToArray();
+            _targetButtons = buttons
+                .Where(x => x.CheckClickable())
+                .Where(x => _options.Condition.Is(x))
+                .ToArray();
             if (_targetButtons.Length == 0) return Priority.None;
             return Priority.Random;
         }
@@ -34,5 +43,10 @@ namespace AutomaticOperationTest.Action
                 ExecuteEvents.pointerClickHandler
             );
         }
+    }
+
+    public class RandomButtonClickActionOptions
+    {
+        public Condition<Button> Condition { get; set; } = AutomaticOperationTest.Condition.None<Button>();
     }
 }
