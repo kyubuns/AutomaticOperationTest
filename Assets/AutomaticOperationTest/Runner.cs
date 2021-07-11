@@ -61,25 +61,15 @@ namespace AutomaticOperationTest
 
         public void Update()
         {
-            var must = new List<IAction>();
             var random = new List<IAction>();
 
             foreach (var action in Actions)
             {
                 var state = action.GetPriority();
-                if (state == Priority.Must) must.Add(action);
                 if (state == Priority.Random) random.Add(action);
             }
 
-            if (must.Count > 0)
-            {
-                foreach (var m in must)
-                {
-                    using var actionLogger = Logger.CreateActionLogger(m);
-                    m.Execute(actionLogger);
-                }
-            }
-            else if (random.Count > 0)
+            if (random.Count > 0)
             {
                 var randomPick = random[UnityEngine.Random.Range(0, random.Count)];
                 using var actionLogger = Logger.CreateActionLogger(randomPick);
@@ -98,7 +88,6 @@ namespace AutomaticOperationTest
 
     public enum Priority
     {
-        Must,
         Random,
         None,
     }
