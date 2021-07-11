@@ -24,7 +24,15 @@ namespace AutomaticOperationTest
             var corners = new Vector3[4];
             rect.GetWorldCorners(corners);
 
-            foreach (var p in new[]{center}.Concat(corners))
+            var minX = corners.Min(x => x.x);
+            var minY = corners.Min(x => x.y);
+            var minZ = corners.Max(x => x.z);
+            var maxX = corners.Max(x => x.x);
+            var maxY = corners.Max(x => x.y);
+            var maxZ = corners.Max(x => x.z);
+            var random = Enumerable.Range(0, 4).Select(_ => new Vector3(Random.Range(minX, maxX), Random.Range(minY, maxY), Random.Range(minZ, maxZ)));
+
+            foreach (var p in new[] { center }.Concat(corners).Concat(random))
             {
                 eventDataCurrentPosition.position = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, p);
                 EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
