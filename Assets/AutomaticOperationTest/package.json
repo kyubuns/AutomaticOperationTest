@@ -1,0 +1,10 @@
+{
+    "name": "dev.kyubuns.automaticoperationtest",
+    "displayName": "AutomaticOperationTest",
+    "version": "0.1.0",
+    "unity": "2020.3",
+    "description": "",
+    "license": "MIT",
+    "category": "Scripting",
+    "dependencies": {}
+}
