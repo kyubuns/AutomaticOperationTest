@@ -32,7 +32,11 @@ namespace AutomaticOperationTest.Action
             return Priority.Random;
         }
 
-        public void Execute(IActionLogger logger)
+        public void Setup(IActionLogger logger)
+        {
+        }
+
+        public ActionState Execute(IActionLogger logger)
         {
             var targetButton = _targetButtons[Random.Range(0, _targetButtons.Length)].gameObject;
             logger.Log("Click", ("Target", targetButton.GetFullName()));
@@ -42,6 +46,7 @@ namespace AutomaticOperationTest.Action
                 new PointerEventData(EventSystem.current),
                 ExecuteEvents.pointerClickHandler
             );
+            return ActionState.Finished;
         }
     }
 

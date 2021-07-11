@@ -58,22 +58,39 @@ namespace AutomaticOperationTest
     {
         public IAction[] Actions { get; set; }
         public Logger Logger { get; set; }
+        private IAction _runningAction;
+        private IActionLogger _runningActionLogger;
 
         public void Update()
         {
-            var random = new List<IAction>();
-
-            foreach (var action in Actions)
+            if (_runningAction == null)
             {
-                var state = action.GetPriority();
-                if (state == Priority.Random) random.Add(action);
+                var random = new List<IAction>();
+
+                foreach (var action in Actions)
+                {
+                    var state = action.GetPriority();
+                    if (state == Priority.Random) random.Add(action);
+                }
+
+                if (random.Count > 0)
+                {
+                    _runningAction = random[UnityEngine.Random.Range(0, random.Count)];
+                    _runningActionLogger = Logger.CreateActionLogger(_runningAction);
+                    _runningAction.Setup(_runningActionLogger);
+                }
             }
 
-            if (random.Count > 0)
+            if (_runningAction != null)
             {
-                var randomPick = random[UnityEngine.Random.Range(0, random.Count)];
-                using var actionLogger = Logger.CreateActionLogger(randomPick);
-                randomPick.Execute(actionLogger);
+                var state = _runningAction.Execute(_runningActionLogger);
+                if (state == ActionState.Finished)
+                {
+                    _runningAction.Dispose();
+                    _runningActionLogger.Dispose();
+                    _runningAction = null;
+                    _runningActionLogger = null;
+                }
             }
         }
 

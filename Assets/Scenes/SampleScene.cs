@@ -43,15 +43,15 @@ public class SampleScene : MonoBehaviour
                 })
             });
 
-            runner.ErrorDetected += (x) =>
+            runner.ErrorDetected += x =>
             {
                 var (logger, error) = x;
                 Debug.Log("=== Error Detected ===");
-                Debug.Log($"{error.Condition}");
+                Debug.Log($"Error: {error.Condition}");
                 Debug.Log($"Current Action: {logger.CurrentAction.Name}");
                 foreach (var log in logger.CurrentActionLogs)
                 {
-                    Debug.Log(log.ToString());
+                    Debug.Log($"Action Log: {log}");
                 }
             };
         });

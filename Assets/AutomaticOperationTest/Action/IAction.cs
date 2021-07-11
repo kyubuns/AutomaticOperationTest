@@ -6,6 +6,13 @@ namespace AutomaticOperationTest.Action
     {
         public string Name { get; }
         public Priority GetPriority();
-        public void Execute(IActionLogger logger);
+        public void Setup(IActionLogger logger);
+        public ActionState Execute(IActionLogger logger);
+    }
+
+    public enum ActionState
+    {
+        Running,
+        Finished,
     }
 }
